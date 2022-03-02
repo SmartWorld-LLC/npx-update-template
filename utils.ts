@@ -14,15 +14,21 @@ export const isValidGitUrl = (url: string): boolean => {
 /**
  * @description - function for execute bash command
  * @param {string} command
+ * @param {boolean} activateError
  * @return {Promise<any>}
  */
-export const exec = async (command: string): Promise<any> => {
+export const exec = async (
+    command: string,
+    activateError: boolean = true,
+): Promise<any> => {
   const exec = require('util').promisify(require('child_process').exec);
 
   const {stdout} = await exec(command).catch((e: any) => {
-    throw new Error(c.red.bold(e.message));
+    if (activateError) {
+      throw new Error(c.red.bold(e.message));
+    } else {
+      return e.stdout;
+    }
   });
-
   return stdout;
 };
-

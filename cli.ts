@@ -6,7 +6,7 @@ import c from 'ansi-colors';
 update()
     .then((status: number) => {
     status === 1 ?
-      console.log(c.black.bgGreen('UPDATE COMPLETED SUCCESSFULLY')) :
+      console.log(c.blue.bgBlackBright('UPDATE COMPLETED SUCCESSFULLY')) :
       console.log(c.black.bgRed('UPDATED COMPLETED WITH ERROR'));
     process.exit(status);
     })
