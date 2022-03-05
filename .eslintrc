@@ -13,6 +13,7 @@
   "rules": {
     "new-cap": "off",
     "no-invalid-this": "off",
-    "camelcase": "off"
+    "camelcase": "off",
+    "guard-for-in": "off"
   }
 }

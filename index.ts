@@ -1,8 +1,9 @@
 import c from 'ansi-colors';
-import {isValidGitUrl, exec} from './utils';
-import {readJson, remove} from 'fs-extra';
+import {isValidGitUrl, exec, applyPackageJson, syncFiles} from './utils';
+import {copyFile, ensureFile, readJson, remove, writeFile} from 'fs-extra';
 import {join} from 'path';
-import {Config} from './types';
+import {Config, Package} from './types';
+import equal from 'deep-equal';
 const TEMPLATE_BRANCH = 'template';
 
 /**
@@ -47,7 +48,9 @@ export const update = async (): Promise<number> => {
   const tempDir = `tempDir_${Math.random().toString(32).split('.')[1]}`;
   await exec(`git clone ${URL} ${tempDir}`);
 
-  let config: Config = {};
+  let config: Config = {
+    packageFile: '/',
+  };
   try {
     config = await readJson(join('.', tempDir, '.templaterc.json'));
   } catch (error) {
@@ -57,9 +60,58 @@ export const update = async (): Promise<number> => {
     await remove(tempDir);
     return 0;
   }
+  const localPackageJson: Package = await readJson(join('.', 'package.json'));
+  const templatePackageJson = await readJson(
+      join(tempDir, config.packageFile, 'package.json'),
+  );
+  let workingPackageJson: Package = JSON.parse(
+      JSON.stringify(localPackageJson),
+  );
+
+  workingPackageJson = applyPackageJson(
+      workingPackageJson,
+      templatePackageJson,
+      config,
+  );
+
+  /* Update package.json */
+  if (!equal(workingPackageJson, localPackageJson)) {
+    await writeFile(
+        join('.', 'package.json'),
+        JSON.stringify(workingPackageJson, null, 2) + '\n',
+    );
+  }
+
+  if (config.directories && config.directories.length > 0) {
+    const files = await syncFiles(config, tempDir);
+
+    for await (const file of files) {
+      if (config.templateDir) {
+        file.path = file.path.replace(config.templateDir, '');
+      }
+      await ensureFile(join('.', file.path));
+      const dest = join('.', file.path);
+      const dest2 = join('.', file.path);
+      await copyFile(join('.', tempDir, file.path), dest2);
+      console.log(c.bold.blue(`  Copying: ${dest} to ${dest2}`));
+      await exec(`git add ${dest2}`);
+    }
+
+    const gitCommit = await exec('git commit -m "Update template"', false);
+    if (!gitCommit) {
+      console.log(c.black.bgGreen('Files no change'));
+    } else {
+      await exec('git push');
+      console.log(c.black.bgGreen('Git push sync files'));
+    }
+  }
+
+  await remove(tempDir);
+
   if (isNeedRollback) {
     await exec(`git checkout ${currentBranch}`);
     console.log(c.black.bgGreen(`Change branch to: ${currentBranch}`));
   }
+
   return 1;
 };
