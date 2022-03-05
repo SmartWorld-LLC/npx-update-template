@@ -1,16 +1,24 @@
 import c from 'ansi-colors';
-import {isValidGitUrl, exec, applyPackageJson, syncFiles} from './utils';
+import {
+  isValidGitUrl,
+  exec,
+  applyPackageJson,
+  syncFiles,
+  gitHelper,
+} from './utils';
 import {copyFile, ensureFile, readJson, remove, writeFile} from 'fs-extra';
 import {join} from 'path';
 import {Config, Package} from './types';
 import equal from 'deep-equal';
 const TEMPLATE_BRANCH = 'template';
+const git = new gitHelper();
 
 /**
  * @description - main function of this package with update logic
  * @return {Promise<number>} - where 1 is success, and 0 - fail
  */
 export const update = async (): Promise<number> => {
+  /** check on need rollback to origin branch */
   let isNeedRollback = false;
   console.log(c.blue.bgBlackBright('PACKAGE UPDATE BY SMARTWORLD.TEAM'));
   const URL = process.argv.slice(2)[0];
@@ -32,6 +40,7 @@ export const update = async (): Promise<number> => {
     return 0;
   }
   console.log(c.black.bgGreen(`You branch: ${currentBranch}`));
+  /** change branch to template if current !== template */
   if (currentBranch !== TEMPLATE_BRANCH) {
     isNeedRollback = true;
     const createBranch = await exec(
@@ -45,12 +54,14 @@ export const update = async (): Promise<number> => {
     }
     console.log(c.black.bgGreen(`Change branch to: ${TEMPLATE_BRANCH}`));
   }
+  /** create name for temp dir  */
   const tempDir = `tempDir_${Math.random().toString(32).split('.')[1]}`;
   await exec(`git clone ${URL} ${tempDir}`);
 
   let config: Config = {
     packageFile: '/',
   };
+
   try {
     config = await readJson(join('.', tempDir, '.templaterc.json'));
   } catch (error) {
@@ -74,34 +85,46 @@ export const update = async (): Promise<number> => {
       config,
   );
 
-  /* Update package.json */
+  /** If there is a difference in package json -> change and commit + push */
   if (!equal(workingPackageJson, localPackageJson)) {
     await writeFile(
         join('.', 'package.json'),
         JSON.stringify(workingPackageJson, null, 2) + '\n',
     );
+    await git.add(`${join('.', 'package.json')}`);
+    const gitCommit = git.commit('Update packageJson');
+    if (!gitCommit) {
+      console.log(c.black.bgGreen('PackageJson no change'));
+    } else {
+      await git.push();
+      console.log(c.black.bgGreen('Pushed update package.json'));
+    }
   }
 
+  /** If needed replace files */
   if (config.directories && config.directories.length > 0) {
     const files = await syncFiles(config, tempDir);
 
     for await (const file of files) {
+      /** if needed removing template name dir from path file */
       if (config.templateDir) {
-        file.path = file.path.replace(config.templateDir, '');
+        file.localePath = file.path.replace(config.templateDir, '');
+      } else {
+        file.localePath = file.path;
       }
-      await ensureFile(join('.', file.path));
+      await ensureFile(join('.', file.localePath));
       const dest = join('.', file.path);
-      const dest2 = join('.', file.path);
-      await copyFile(join('.', tempDir, file.path), dest2);
-      console.log(c.bold.blue(`  Copying: ${dest} to ${dest2}`));
-      await exec(`git add ${dest2}`);
+      const destLocale = join('.', file.localePath);
+      await copyFile(join('.', tempDir, file.path), destLocale);
+      console.log(c.bold.blue(`  Copying: ${dest} to ${destLocale}`));
+      await git.add(`${destLocale}`);
     }
 
-    const gitCommit = await exec('git commit -m "Update template"', false);
+    const gitCommit = await git.commit('Update template');
     if (!gitCommit) {
       console.log(c.black.bgGreen('Files no change'));
     } else {
-      await exec('git push');
+      await git.push();
       console.log(c.black.bgGreen('Git push sync files'));
     }
   }

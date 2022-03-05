@@ -40,7 +40,7 @@ export const exec = async (
 };
 
 /**
- * @description -
+ * @description - compare locale dev version and template
  * @param {string} valueTemplate
  * @param {string} valueLocale
  * @return {string}
@@ -102,7 +102,7 @@ export const mergeObjectWithoutReplace = (
 };
 
 /**
- * @description -
+ * @description - Compare and replace desired objects
  * @param {Package} localePackage
  * @param {Package} templatePackage
  * @param {Config} config
@@ -139,14 +139,18 @@ export const applyPackageJson = (
 };
 
 /**
- * @description -
+ * @description - sync files from template to project
  * @param {Config} config
  * @param {String} tempDir
  * @return {{path: string, to: string}[]}
  */
 export const syncFiles = async (config: Config, tempDir: string) => {
   console.log(c.black.bgGreen('Start sync files...'));
-  const files: {path: string; to: string}[] = [];
+  const files: {
+    localePath?: string;
+    path: string;
+    to: string;
+  }[] = [];
   if (config.directories) {
     for (const item of config.directories) {
       const _files = (await fg(`${tempDir}/${item.files}`)).map((file) =>
@@ -163,3 +167,31 @@ export const syncFiles = async (config: Config, tempDir: string) => {
 
   return files;
 };
+
+/**
+ * @description - Git helper
+ */
+export class gitHelper {
+  /**
+   * @description - command for git add
+   * @param {string} file
+   */
+  add = async (file: string) => {
+    return await exec(`git add ${file}`);
+  };
+
+  /**
+   * @description - command for git commit
+   * @param {string} message
+   */
+  commit = async (message: string) => {
+    return await exec(`git commit -m "${message}"`, false);
+  };
+
+  /**
+   * @description - command for git push
+   */
+  push = async () => {
+    return await exec(`git push`);
+  };
+}
