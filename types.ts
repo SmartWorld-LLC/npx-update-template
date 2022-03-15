@@ -5,7 +5,7 @@ interface Files {
 
 export interface Config {
   directories?: Files[];
-  templateDir?: string,
+  templateDir?: string;
   npmDependencies?: boolean;
   npmScripts?: boolean;
   packageFile: string;

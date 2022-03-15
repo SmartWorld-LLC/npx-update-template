@@ -2,7 +2,7 @@
   "name": "npx-update-template",
   "version": "1.0.0",
   "description": "Updating Template Repositories",
-  "main": "index.ts",
+  "main": "cli.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "ts-node cli.ts"
@@ -11,7 +11,7 @@
     "type": "git",
     "url": "git+https://github.com/SmartWorld-LLC/npx-update-template.git"
   },
-  "author": "",
+  "author": "Nikita Vtorushin <n.vtorsuhin@smartworld.team>",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/SmartWorld-LLC/npx-update-template/issues"

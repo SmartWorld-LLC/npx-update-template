@@ -101,7 +101,7 @@ export const update = async (): Promise<number> => {
     }
   }
 
-  /** If needed replace files */
+  /** If needed to replace files */
   if (config.directories && config.directories.length > 0) {
     const files = await syncFiles(config, tempDir);
 
