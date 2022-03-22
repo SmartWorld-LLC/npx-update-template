@@ -4,8 +4,8 @@
   "description": "Updating Template Repositories",
   "main": "cli.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "ts-node cli.ts"
+    "start": "ts-node cli.ts",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
