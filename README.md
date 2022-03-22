@@ -8,7 +8,7 @@ At the moment, automation is that this package will reduce the update to actions
 ### Install npm package in you template repo:
 
 ```
-npm i
+npm i @smartworld.team/npx-update-template
 ```
 
 ### Create a file at the root template repo:
