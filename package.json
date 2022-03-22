@@ -1,6 +1,6 @@
 {
   "name": "@smartworld.team/npx-update-template",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Updating Template Repositories",
   "main": "cli.ts",
   "scripts": {
