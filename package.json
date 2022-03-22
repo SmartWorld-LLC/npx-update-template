@@ -1,5 +1,5 @@
 {
-  "name": "npx-update-template",
+  "name": "@smartworld.team/npx-update-template",
   "version": "1.0.0",
   "description": "Updating Template Repositories",
   "main": "cli.ts",
@@ -38,5 +38,18 @@
     "eslint-plugin-import": "^2.25.4",
     "prettier": "^2.5.1",
     "typescript": "^4.6.2"
-  }
+  },
+  "keywords": [
+    "github",
+    "template",
+    "repo",
+    "tool",
+    "tooling",
+    "nodejs",
+    "typescript",
+    "update-template",
+    "npx-update-template",
+    "npx-template",
+    "npx"
+  ]
 }
