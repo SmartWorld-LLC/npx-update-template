@@ -1,4 +1,6 @@
 # npx-update-template
+[![NPM version](https://img.shields.io/npm/v/@smartworld.team/npx-update-template.svg?style=flat)](https://npmjs.org/package/@smartworld.team/npx-update-template)
+[![NPM downloads](https://img.shields.io/npm/dm/@smartworld.team/npx-update-template.svg?style=flat)](https://npmjs.org/package/@smartworld.team/npx-update-template)
 
 When creating a repository template, there is a problem with updating a child repository, this package will help you make updates almost painlessly.
 At the moment, automation is that this package will reduce the update to actions that cannot be done without a person. The repository will be updated and uploaded to a specific branch named: template. After all the updates - you just have to merge the two branches and test.
