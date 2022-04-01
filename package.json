@@ -3,6 +3,7 @@
   "version": "1.0.1",
   "description": "Updating Template Repositories",
   "main": "cli.ts",
+  "bin": "dist/cli.js",
   "scripts": {
     "start": "ts-node cli.ts",
     "build": "tsc"

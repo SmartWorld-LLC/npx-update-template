@@ -12,6 +12,7 @@ jobs:
         with:
           node-version: 14.x
       - run: npm install
+      - run: npm run build
       - run: rm -r .github
       - run: |
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}"
